@@ -1,0 +1,9 @@
+@import '../../resources/colors';
+
+#AppContainer {
+	width: 100vw;
+	height: 100vh;
+	background-color: $color-green-dark;
+	background-image: url('./resources/bg1.svg');
+	background-size: 100% 100%;
+}

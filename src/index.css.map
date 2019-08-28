@@ -1,0 +1,11 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,IAAI,CAAC;EACH,MAAM,EAAE,CAAC;CACV;;ACAD,AAAA,aAAa,CAAC;EACb,KAAK,EAAE,KAAK;EACZ,MAAM,EAAE,KAAK;EACb,gBAAgB,ECHE,OAAO;EDIzB,gBAAgB,EAAE,0BAA0B;EAC5C,eAAe,EAAE,SAAS;CAC1B",
+    "sources": [
+        "index.scss",
+        "components/App/App.scss",
+        "resources/_colors.scss"
+    ],
+    "names": [],
+    "file": "index.css"
+}
