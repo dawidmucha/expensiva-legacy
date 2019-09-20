@@ -1,12 +1,21 @@
-body {
-  margin: 0;
-}
-
 #AppContainer {
   width: 100vw;
   height: 100vh;
   background-color: #007700;
   background-image: url("./resources/bg1.svg");
   background-size: 100% 100%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  width: 80%;
 }
 /*# sourceMappingURL=index.css.map */
