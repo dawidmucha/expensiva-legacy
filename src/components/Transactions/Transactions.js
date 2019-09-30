@@ -3,6 +3,7 @@ import AddReceipt from '../modals/AddReceipt'
 import Navbar from '../modals/Navbar'
 import database from '../../firebase/firebase'
 import Items from '../Items/Items'
+import store from '../../store/configureStore'
 
 class Transactions extends React.Component {
 	constructor(props) {
@@ -23,7 +24,15 @@ class Transactions extends React.Component {
 					[el.key]: el.val()
 				}))
 			})
+		})
 
+		database.ref(`${store.getState().uID || localStorage.getItem('uID')}`).update({ 
+			categories: {
+				bills: ['phone', 'gas', 'electicity', 'water'], 
+				groceries: ['food', 'toileteries', 'stuff'], 
+				car: ['insurance', 'fuel', 'legal stuff', 'maintainance'], 
+				other: []
+			}
 		})
 	}
 	

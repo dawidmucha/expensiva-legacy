@@ -44,7 +44,7 @@ class AddReceipt extends React.Component {
 		return (
 			<Popup trigger={<button>+</button>} modal closeOnDocumentClick>
 				{close => (
-					<div close={close}>
+					<div>
 						<label htmlFor='shop'>shop</label>
 						<select onChange={this.handleShopChange}>
 							<option id='zabka' value='zabka'>zabka</option>
@@ -58,7 +58,7 @@ class AddReceipt extends React.Component {
 						<label htmlFor='time'>time</label>
 						<input type='time' id='time' onChange={this.handleChange} value={this.state.value} /><br />
 						
-						<button onClick={this.props.close}>cancel</button>
+						<button onClick={close}>cancel</button>
 						<button onClick={this.handleAddReceipt}>add</button>
 					</div>
 				)}
