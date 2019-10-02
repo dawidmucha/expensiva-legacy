@@ -5,6 +5,8 @@ import database from '../../firebase/firebase'
 import store from '../../store/configureStore'
 
 class Items extends React.Component {
+	_isMounted = false
+
 	constructor(props) {
 		super(props)
 
@@ -34,13 +36,11 @@ class Items extends React.Component {
 			subcats: [],
 
 			errorMessage: '',
-			justDeleted: false,
 
 			addModalState: false,
 			receiptModalState: false
 		}
 	}
-
 	
 	async refreshData() {
 		await this.fetchItems()
@@ -48,9 +48,15 @@ class Items extends React.Component {
 		if(this.state.selectedCategory) this.updateCategories()
 	}
 	
-	componentDidMount() {
+	async componentDidMount() {
+		this._isMounted = true
+		await this.fetchItems()
 		this.refreshData()
 		this.updateCategories()
+	}
+
+	componentWillUnmount() {
+		this._isMounted = false
 	}
 
 	async removeItem(id) {
@@ -60,19 +66,21 @@ class Items extends React.Component {
 
 	fetchItems() {
 		let arr = []
-		database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}/items`).orderByChild('date').on('child_added', (snapshot) => {
+		database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}/items`).on('child_added', (snapshot) => {
 			arr = arr.concat(Object.assign({}, snapshot.val(), { id: snapshot.key }))
 		})
-		this.setState({ items: arr })
+		if(this._isMounted) this.setState({ items: arr })
 	}
 
 	calculateWholePrice() {
-		this.setState({wholePrice: 0})
-		this.state.items.map((item) => {
-			return this.setState(state => ({
-				wholePrice: state.wholePrice + parseInt(item.price, 10)
-			}))
-		})
+		if(this._isMounted) {
+			this.setState({wholePrice: 0})
+			this.state.items.map((item) => {
+				return this.setState(state => ({
+					wholePrice: state.wholePrice + parseInt(item.price, 10)
+				}))
+			})
+		}
 	}
 
 	async updateCategories(e) {
@@ -80,10 +88,9 @@ class Items extends React.Component {
 		let categories = []
 		let subcats = []
 		
-		await database.ref(`${store.getState().uID || localStorage.getItem('uID')}/categories`).once('value').then(snapshot => {
+		if(this._isMounted) await database.ref(`${store.getState().uID || localStorage.getItem('uID')}/categories`).once('value').then(snapshot => {
 			catsSnapshot = snapshot.val()
 		})
-		
 		
 		Object.keys(catsSnapshot).map((category) => {
 			return categories = categories.concat({ value: 'category', label: category })
@@ -95,48 +102,52 @@ class Items extends React.Component {
 			})
 		}
 
-		this.setState(state => ({
-			categories,
-			subcats
-		}))
+		if(this._isMounted) {
+			this.setState(state => ({
+				categories,
+				subcats
+			}))
+		} 
 	}
 
 	handleChange(e) {
-		this.setState({ [e.target.id]: e.target.value })
+		if(this._isMounted) this.setState({ [e.target.id]: e.target.value })
 	}
 
 	handleSelectChange(e) {
-		console.log(e)
-		this.updateCategories(e)
-
-		this.setState({ [e.value]: e.label })
+		if(this._isMounted) {
+			this.updateCategories(e)
+	
+			this.setState({ [e.value]: e.label })
+		}
 	}
 
-	handleAddItem(close) {
-		if(this.state.name && this.state.price && this.state.category && this.state.subcat) {
-			database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}/items`).push({ 
-				name: this.state.name,
-				amount: this.state.amount || 1,
-				volume: this.state.volume || 1,
-				volSfx: this.state.volSfx,
-				price: this.state.price,
-				isDiscount: this.state.isDiscount || false,
-				category: this.state.category,
-				subcat: this.state.subcat,
-			}).once('child_added', () => {
-				this.refreshData()
-			})
-			this.setState({ errorMessage: '' })
-			close()
-		} else this.setState({ errorMessage: 'Fill all required fields!' })
+	async handleAddItem(close) {
+		if(this._isMounted) {
+			if(this.state.name && this.state.price && this.state.category && this.state.subcat) {
+				await database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}/items`).push({ 
+					name: this.state.name,
+					amount: this.state.amount || 1,
+					volume: this.state.volume || 1,
+					volSfx: this.state.volSfx,
+					price: this.state.price,
+					isDiscount: this.state.isDiscount || false,
+					category: this.state.category,
+					subcat: this.state.subcat,
+				}).once('child_added', () => {
+					this.refreshData()
+				})
+				this.setState({ errorMessage: '' })
+				close()
+			} else this.setState({ errorMessage: 'Fill all required fields!' })
+		}
 	}
 
-	async removeReceipt(close, receiptClose) {
-		await database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}`).remove()
+	 removeReceipt(close, receiptClose) {
+		 database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}`).remove()
 		this.refreshData()
-		this.setState({ justDeleted: true })
-		close()
 		receiptClose()
+		close()
 	}
 
 	render() {
@@ -165,7 +176,7 @@ class Items extends React.Component {
 				<Popup modal trigger={<button>EDIT</button>}>
 					{receiptClose => (
 						<div>	
-							<Popup modal trigger={<button>ADD</button>} onChange={this.escapeReceiptPhantom}>
+							<Popup modal trigger={<button>ADD</button>}>
 								{close => (
 									<div>
 										<p>{this.state.errorMessage}</p>
@@ -208,7 +219,7 @@ class Items extends React.Component {
 							</Popup>
 								
 							<ul>
-								{items}
+								{items || null}
 							</ul>	
 						</div>
 					)}

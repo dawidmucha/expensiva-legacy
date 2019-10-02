@@ -6,24 +6,41 @@ import Items from '../Items/Items'
 import store from '../../store/configureStore'
 
 class Transactions extends React.Component {
+	_isMounted = false
+
 	constructor(props) {
 		super(props)
 
 		this.state = {
 			transactions: []
 		}
+
+		this.updateList = this.updateList.bind(this)
 	}
 
 	componentDidMount() {
-		database.ref(`${localStorage.getItem('uID')}/transactions`).on('value', (snapshot) => {
+		this._isMounted = true
+		this.updateList()
+	}
+
+	componentWillUnmount() {
+		this._isMounted = false
+	}
+	
+	updateList() {
+		database.ref(`${localStorage.getItem('uID')}/transactions`).orderByChild('date').on('value', (snapshot) => {
 			this.setState(state => {
 				state.transactions = []
 			})
-			snapshot.forEach(el => {
-				this.setState(state => state.transactions.push({
-					[el.key]: el.val()
-				}))
-			})
+			if(snapshot.val()) {
+				snapshot.forEach(el => {
+					this.setState(state => state.transactions.unshift({ //unshift - descentind order
+						[el.key]: el.val()
+					}))
+				})
+			} else {
+				this.setState({ transactions: [] })
+			}
 		})
 
 		database.ref(`${store.getState().uID || localStorage.getItem('uID')}`).update({ 
@@ -34,32 +51,50 @@ class Transactions extends React.Component {
 				other: []
 			}
 		})
-	}
-	
-	render() {
-		const transactions = this.state.transactions.map((transaction, i) => {
-			const transactionEls = transaction[Object.keys(transaction)[0]]
-			return (
-				<li key={i}>
-					{transactionEls.shop} - {transactionEls.date} - {transactionEls.time} <br />
-					<Items receiptId={Object.keys(transaction)} />
-				</li>
-			)
-		})
 
-		return (
-			<div>
-				<h1>u have no money</h1>
+		console.log('list updated')
+	}
+
+	render() {
+		if(this._isMounted) {
+			const transactions = this.state.transactions.map((transaction, i) => {
+				const transactionEls = transaction[Object.keys(transaction)[0]]
+	
+				return (
+					<li key={i}>
+						{transactionEls.shop} - {transactionEls.date} - {transactionEls.time} <br />
+						<Items receiptId={Object.keys(transaction)} updateList={this.updateList} />
+					</li>
+				)
+			})
+			return (
 				<div>
-				<ul>
-					{transactions}	
-				</ul>
+					<h1>u have no money</h1>
+					<div>
+					<ul>
+						{transactions.length ? transactions : <div>dupa</div>}	
+					</ul>
+					</div>
+					<hr />
+					<Navbar />
+					<AddReceipt uID={this.props.uID} />
 				</div>
-				<hr />
-				<Navbar />
-				<AddReceipt uID={this.props.uID} />
-			</div>
-		)
+			)
+		} else {
+			return (
+				<div>
+					<h1>u have no money</h1>
+					<div>
+					<ul>
+						{<div>no shit</div>}	
+					</ul>
+					</div>
+					<hr />
+					<Navbar />
+					<AddReceipt uID={this.props.uID} />
+				</div>
+			)
+		}
 	}
 }
 

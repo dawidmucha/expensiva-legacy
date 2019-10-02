@@ -4,6 +4,8 @@ import database from '../../firebase/firebase'
 import uuidv4 from 'uuid/v4'
 
 class AddReceipt extends React.Component {
+	_isMounted = false
+
 	constructor(props) {
 		super(props)
 
@@ -18,26 +20,34 @@ class AddReceipt extends React.Component {
 			id: undefined
 		}
 	}
-	
+
 	componentDidMount() {
-		this.setState({ id: uuidv4() })
+		this._isMounted = true
+	}
+
+	componentWillUnmount() {
+		this._isMounted = false
 	}
 
 	handleShopChange(e) {
-		this.setState({ shop: e.target.value })
+		if(this._isMounted) this.setState({ shop: e.target.value })
 	}
 
 	handleChange(e) {
-		this.setState({ [e.target.id]: e.target.value })
+		if(this._isMounted) this.setState({ [e.target.id]: e.target.value })
 	}
 
-	handleAddReceipt() {
-		database.ref(`${localStorage.getItem('uID')}/transactions/${this.state.id}`).set({
-			shop: this.state.shop,
-			date: this.state.date,
-			time: this.state.time,
-			items: {}
-		})
+	async handleAddReceipt(close) {
+		if(this._isMounted) {
+			await this.setState({ id: uuidv4() })
+			database.ref(`${localStorage.getItem('uID')}/transactions/${this.state.id}`).set({
+				shop: this.state.shop,
+				date: this.state.date,
+				time: this.state.time,
+				items: {}
+			})
+			close()
+		}
 	}
 
 	render() {
@@ -59,7 +69,7 @@ class AddReceipt extends React.Component {
 						<input type='time' id='time' onChange={this.handleChange} value={this.state.value} /><br />
 						
 						<button onClick={close}>cancel</button>
-						<button onClick={this.handleAddReceipt}>add</button>
+						<button onClick={() => this.handleAddReceipt(close)}>add</button>
 					</div>
 				)}
 			</Popup>
