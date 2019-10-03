@@ -1,7 +1,9 @@
 import React from 'react'
 import Popup from 'reactjs-popup'
+import Select from 'react-select'
 import database from '../../firebase/firebase'
 import uuidv4 from 'uuid/v4'
+import store from '../../store/configureStore'
 
 class AddReceipt extends React.Component {
 	_isMounted = false
@@ -14,15 +16,25 @@ class AddReceipt extends React.Component {
 		this.handleAddReceipt = this.handleAddReceipt.bind(this)
 
 		this.state = {
-			shop: 'zabka',
+			shop: undefined,
 			date: undefined,
 			time: undefined,
-			id: undefined
+			id: undefined,
+			shops: [],
+			errorMessage: ''
 		}
 	}
 
 	componentDidMount() {
 		this._isMounted = true
+
+		database.ref(`${store.getState().uID || localStorage.getItem('uID')}/shops`).on('value', (snapshot) => {
+			this.setState(state => {
+				snapshot.val().map(item => {
+					return state.shops = state.shops.concat({ value: item, label: item })
+				})
+			})
+		})
 	}
 
 	componentWillUnmount() {
@@ -30,7 +42,7 @@ class AddReceipt extends React.Component {
 	}
 
 	handleShopChange(e) {
-		if(this._isMounted) this.setState({ shop: e.target.value })
+		if(this._isMounted) this.setState({ shop: e.value })
 	}
 
 	handleChange(e) {
@@ -40,13 +52,21 @@ class AddReceipt extends React.Component {
 	async handleAddReceipt(close) {
 		if(this._isMounted) {
 			await this.setState({ id: uuidv4() })
-			database.ref(`${localStorage.getItem('uID')}/transactions/${this.state.id}`).set({
-				shop: this.state.shop,
-				date: this.state.date,
-				time: this.state.time,
-				items: {}
-			})
-			close()
+			if(this.state.shop && this.state.date && this.state.time) {
+				database.ref(`${localStorage.getItem('uID')}/transactions/${this.state.id}`).set({
+					shop: this.state.shop,
+					date: this.state.date,
+					time: this.state.time,
+					items: {}
+				})
+				this.setState(() => ({ 
+					errorMessage: '',
+					shop: undefined
+				}))
+				close()
+			} else {
+				this.setState({ errorMessage: 'please fill in all required fields!'})
+			}
 		}
 	}
 
@@ -55,12 +75,10 @@ class AddReceipt extends React.Component {
 			<Popup trigger={<button>+</button>} modal closeOnDocumentClick>
 				{close => (
 					<div>
+						<p>{this.state.errorMessage}</p>
+					
 						<label htmlFor='shop'>shop</label>
-						<select onChange={this.handleShopChange}>
-							<option id='zabka' value='zabka'>zabka</option>
-							<option id='lidl' value='lidl'>lidl</option>
-							<option id='biedro' value='biedro'>biedro</option>
-						</select><br />
+						<Select onChange={this.handleShopChange} options={this.state.shops} /><br />
 
 						<label htmlFor='date'>date</label>
 						<input type='date' id='date' onChange={this.handleChange} value={this.state.value} /><br />

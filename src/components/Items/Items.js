@@ -144,7 +144,7 @@ class Items extends React.Component {
 	}
 
 	 removeReceipt(close, receiptClose) {
-		 database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}`).remove()
+		database.ref(`${store.getState().uID || localStorage.getItem('uID')}/transactions/${this.props.receiptId}`).remove()
 		this.refreshData()
 		receiptClose()
 		close()
