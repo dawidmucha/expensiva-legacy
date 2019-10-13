@@ -42,17 +42,6 @@ class Transactions extends React.Component {
 				this.setState({ transactions: [] })
 			}
 		})
-
-		database.ref(`${store.getState().uID || localStorage.getItem('uID')}`).update({ 
-			categories: {
-				bills: ['phone', 'gas', 'electicity', 'water'], 
-				groceries: ['food', 'toileteries', 'stuff'], 
-				car: ['insurance', 'fuel', 'legal stuff', 'maintainance'], 
-				other: []
-			}
-		})
-
-		console.log('list updated')
 	}
 
 	render() {
