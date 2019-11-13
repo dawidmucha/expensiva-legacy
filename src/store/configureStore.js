@@ -1,8 +1,15 @@
-import { configureStore } from 'redux-starter-kit'
+import { createStore, applyMiddleware, compose } from 'redux'
+import thunk from 'redux-thunk'
 import reducer from '../reducer/reducer'
 
-const store = configureStore({
-  reducer
-})
+const configureStore = () => {
+  const store = createStore(
+    reducer, 
+    compose(
+      applyMiddleware(thunk),
+      window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+    ))
+  return store
+}
 
-export default store
+export default configureStore()

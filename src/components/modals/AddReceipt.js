@@ -29,11 +29,13 @@ class AddReceipt extends React.Component {
 		this._isMounted = true
 
 		database.ref(`${store.getState().uID || localStorage.getItem('uID')}/shops`).on('value', (snapshot) => {
-			this.setState(state => {
-				snapshot.val().map(item => {
-					return state.shops = state.shops.concat({ value: item, label: item })
+			if(snapshot.val()) {
+				this.setState(state => {
+					Object.keys(snapshot.val()).map(item => {
+						return state.shops = state.shops.concat({ value: item, label: item })
+					})
 				})
-			})
+			}
 		})
 	}
 

@@ -1,5 +1,6 @@
 import React from 'react'
 import Navbar from '../modals/Navbar'
+import Shops from '../Shops/Shops'
 import database from '../../firebase/firebase'
 import store from '../../store/configureStore'
 
@@ -87,31 +88,33 @@ class Categories extends React.Component {
 		this.setState({ categoriesHtml: [] })
 		let arr = []
 		
-		Object.keys(this.state.categories).map((category, i) => { 
-			arr = arr.concat( //list of categories
-				<ul key={`ul${i}`}>
-					{category}
-					<button onClick={() => this.removeCategoriesElement(category)}>x</button>
-				</ul>
-			)
-
-			this.state.categories[category].map((subcategory, j) => { //sub-lists of subcategories
-				return subcategory !== 0 ? arr = arr.concat(
-					<li key={`ul${i}${j}`}>{subcategory}
-						<button onClick={() => this.removeCategoriesElement(subcategory, category)}>x</button>
+		if(this.state.categories) {
+			Object.keys(this.state.categories).map((category, i) => { 
+				arr = arr.concat( //list of categories
+					<ul key={`ul${i}`}>
+						{category}
+						<button onClick={() => this.removeCategoriesElement(category)}>x</button>
+					</ul>
+				)
+	
+				this.state.categories[category].map((subcategory, j) => { //sub-lists of subcategories
+					return subcategory !== 0 ? arr = arr.concat(
+						<li key={`ul${i}${j}`}>{subcategory}
+							<button onClick={() => this.removeCategoriesElement(subcategory, category)}>x</button>
+						</li>
+					) : undefined
+				})
+	
+				arr = arr.concat( // addSubcat field
+					<li key={`li_sub_${i}`}>
+						<input type='text' id='subcat' value={this.state.value} onChange={this.handleChange} />
+						<button onClick={() => this.addCategoriesElement(this.state.subcat, category)}>ADD</button>
 					</li>
-				) : undefined
+				) 
+	
+				return arr
 			})
-
-			arr = arr.concat( // addSubcat field
-				<li key={`li_sub_${i}`}>
-					<input type='text' id='subcat' value={this.state.value} onChange={this.handleChange} />
-					<button onClick={() => this.addCategoriesElement(this.state.subcat, category)}>ADD</button>
-				</li>
-			) 
-
-			return arr
-		})
+		}
 
 		arr = arr.concat( // addCategory field
 			<ul key={`li_cat`}>
@@ -128,6 +131,8 @@ class Categories extends React.Component {
 			<div>
 				<div>categories</div>
 				{ this.state.categoriesHtml }
+				<hr />
+				<Shops />
 				<hr />
 				<Navbar />
 			</div>

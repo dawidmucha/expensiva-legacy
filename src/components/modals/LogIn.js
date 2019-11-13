@@ -4,6 +4,8 @@ import { connect } from 'react-redux'
 import { auth } from '../../firebase/firebase'
 import { logInUser } from '../../actions/actions'
 
+let _mounted = false
+
 class LogIn extends React.Component {
 	constructor(props) {
 		super(props)
@@ -19,22 +21,33 @@ class LogIn extends React.Component {
 		this.handleChange = this.handleChange.bind(this)
 	}
 
+	componentDidMount() {
+		_mounted = true
+	}
+
+	componentWillUnmount() {
+		_mounted = false
+	}
+
 	handleChange(e) {
 		this.setState({ [e.target.id]: e.target.value })
 	}
 
 	handleLogIn() {
-		auth.signInWithEmailAndPassword(this.state.email, this.state.password).then(() => {
-			const user = auth.currentUser
-			this.props.dispatch(logInUser(user.uid))
-			localStorage.setItem('uID', user.uid)
-			this.setState({ isLoggedIn: true })
-			console.log('logged in')
-		}).catch(err => {
-			console.log(this.state.status)
-			console.log(err.message)
-			console.log("error code", err.code)
-		})
+		if(_mounted) {
+			auth.signInWithEmailAndPassword(this.state.email, this.state.password).then(() => {
+				const user = auth.currentUser
+				this.props.dispatch(logInUser(user.uid))
+				localStorage.setItem('uID', user.uid)
+			}).then(() => {
+				this.setState({ isLoggedIn: true })
+				console.log('logged in as', auth.currentUser)
+			}).catch(err => {
+				console.log(this.state.status)
+				console.log(err.message)
+				console.log("error code", err.code)
+			})
+		}
 	}
 
 	render() {

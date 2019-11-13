@@ -3,7 +3,6 @@ import AddReceipt from '../modals/AddReceipt'
 import Navbar from '../modals/Navbar'
 import database from '../../firebase/firebase'
 import Items from '../Items/Items'
-import store from '../../store/configureStore'
 
 class Transactions extends React.Component {
 	_isMounted = false
@@ -28,22 +27,24 @@ class Transactions extends React.Component {
 	}
 	
 	updateList() {
-		database.ref(`${localStorage.getItem('uID')}/transactions`).orderByChild('date').on('value', (snapshot) => {
-			this.setState(state => {
-				state.transactions = []
-			})
-			if(snapshot.val()) {
-				snapshot.forEach(el => {
-					this.setState(state => state.transactions.unshift({ //unshift - descentind order
-						[el.key]: el.val()
-					}))
+		if(this._isMounted) {
+			database.ref(`${localStorage.getItem('uID')}/transactions`).orderByChild('date').on('value', (snapshot) => {
+				this.setState(state => {
+					state.transactions = []
 				})
-			} else {
-				this.setState({ transactions: [] })
-			}
-		})
+				if(snapshot.val()) {
+					snapshot.forEach(el => {
+						this.setState(state => state.transactions.unshift({ //unshift - descentind order
+							[el.key]: el.val()
+						}))
+					})
+				} else {
+					this.setState({ transactions: [] })
+				}
+			})
+		}
 	}
-
+	
 	render() {
 		if(this._isMounted) {
 			const transactions = this.state.transactions.map((transaction, i) => {

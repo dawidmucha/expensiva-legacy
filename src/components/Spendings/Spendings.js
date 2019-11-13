@@ -5,7 +5,7 @@ class Spendings extends React.Component {
 	render() {
 		return (
 			<div>
-				<div>spendings</div>
+				<h1>soon™</h1>
 				<hr />
 				<Navbar />
 			</div>
