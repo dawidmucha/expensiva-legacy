@@ -88,18 +88,20 @@ class Items extends React.Component {
 		let categories = []
 		let subcats = []
 		
-		if(this._isMounted) await database.ref(`${store.getState().uID || localStorage.getItem('uID')}/categories`).once('value').then(snapshot => {
-			catsSnapshot = snapshot.val()
-		})
-		
-		Object.keys(catsSnapshot).map((category) => {
-			return categories = categories.concat({ value: 'category', label: category })
-		})
-		
-		if(this.state.category) {
-			catsSnapshot[this.state.category].map((subcat) => {
-				return subcats = subcats.concat({ value: 'subcat', label: subcat })
+		if(this._isMounted) {
+			await database.ref(`${store.getState().uID || localStorage.getItem('uID')}/categories`).once('value').then(snapshot => {
+				catsSnapshot = snapshot.val()
 			})
+		
+			Object.keys(catsSnapshot).map((category) => {
+				return categories = categories.concat({ value: 'category', label: category })
+			})
+		
+			if(this.state.category) {
+				catsSnapshot[this.state.category].map((subcat) => {
+					return subcats = subcats.concat({ value: 'subcat', label: subcat })
+				})
+			}
 		}
 
 		if(this._isMounted) {

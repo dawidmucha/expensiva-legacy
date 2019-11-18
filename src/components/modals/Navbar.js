@@ -30,13 +30,14 @@ class Navbar extends React.Component {
 	componentWillUnmount() {
 		this.setState({ ready: false })
 		console.log('ready?', this.state.ready)
-		console.log('why?', this.state.ready, window.location.href.includes('/transactions'))
+		console.log('why?', this.state.ready, window.location.href)
 	}
 
 	handleLogOut() {
-		console.log('ready?', this.state.ready)
+		console.log('logging out ready?', this.state.ready)
 		this.setState({ ready: true })
-		return this.props.startLogOutUser
+		console.log('ah', this.props.startLogOutUser)
+		this.props.startLogOutUser()
 	}
 
 	render() {
@@ -56,7 +57,7 @@ class Navbar extends React.Component {
 				<div id='navbar-profile' style={{display: 'inline-block'}}></div>
 				<button onClick={this.handleLogOut}>LOGOUT</button>
 
-				{ (this.state.ready && window.location.href.includes('/transactions')) ? <Redirect to='/' /> : null}
+				{ (this.state.ready) ? <Redirect to='/' /> : null}
 			</div>
 		)
 	}
@@ -64,6 +65,7 @@ class Navbar extends React.Component {
 
 const mapDispatchToProps = (dispatch) => ({
 	startLogOutUser: () => {
+		console.log('map dispatch')
 		dispatch(startLogOutUser)
 	}
 }) 

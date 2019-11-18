@@ -6,12 +6,20 @@ import Transactions from '../Transactions/Transactions'
 import Spendings from '../Spendings/Spendings'
 import Categories from '../Categories/Categories.js'
 import store from '../../store/configureStore'
-import { auth } from '../../firebase/firebase'
-import { logInUser, logOutUser } from '../../actions/actions'
 
-store.subscribe(() => console.log(store.getState()))
+store.subscribe(() => {
+	console.log('store updated', store.getState())
+})
 
 class App extends React.Component {
+	componentDidUpdate() {
+		console.log(store.getState())	
+	}
+
+	componentWillReceiveProps() {
+		console.log('yikes')
+	}
+
 	render() {
 		return (
 			<Provider store={store}>
@@ -29,16 +37,5 @@ class App extends React.Component {
 		)
 	}
 }
-
-auth.onAuthStateChanged((user) => {
-	if(user) {
-		console.log('LOGGED IN', user)
-		store.dispatch(logInUser(user.uid))
-	} else {
-		console.log('LOGGED OUT')
-		store.dispatch(logOutUser())
-		console.log(store.getState().uID)
-	}
-})
 
 export default App

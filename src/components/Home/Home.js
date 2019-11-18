@@ -2,10 +2,20 @@ import React from 'react'
 import Popup from 'reactjs-popup'
 import LogIn from '../modals/LogIn'
 import Register from '../modals/Register'
-
 import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { startLogInUser } from '../../actions/actions'
+import { startLogInUser, logOutUser } from '../../actions/actions'
+import { auth } from '../../firebase/firebase'
+
+auth.onAuthStateChanged(function(user) {
+	if (user) {
+		console.log('current user is...', user)
+		// User is signed in.
+	} else {
+		console.log('omg jprdl no user')
+		// No user is signed in.
+	}
+})
 
 class Home extends React.Component {
 	constructor(props) {
@@ -15,12 +25,10 @@ class Home extends React.Component {
 			isLoggedIn: false,
 			user: undefined
 		}
-		
-		this.handleLogIn = this.handleLogIn.bind(this)
 	}
-	
-	handleLogIn() {
-		
+
+	componentDidUpdate() {
+		console.log('boo-yah', this.state.user, this.props.user)
 	}
 
 	render() {
@@ -41,14 +49,22 @@ class Home extends React.Component {
 					)}
 				</Popup>
 				
-				{ this.state.isLoggedIn ? <Redirect to='/transactions' /> : null }
+				{ this.props.user && !window.location.href.includes('/transactions') ? <Redirect to='/transactions' /> : null }
 			</div>
 		)
 	}
 }
 
 const mapDispatchToProps = dispatch => ({
-	startLogInUser: () => dispatch(startLogInUser())
+	startLogInUser: () => dispatch(startLogInUser()),
+	logOutUser: () => dispatch(logOutUser())
 })
 
-export default connect(undefined, mapDispatchToProps)(Home)
+const mapStateToProps = state => {
+	console.log('booyah', state)
+	return {
+		user: state.uID
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home)

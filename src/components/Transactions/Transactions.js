@@ -3,6 +3,8 @@ import AddReceipt from '../modals/AddReceipt'
 import Navbar from '../modals/Navbar'
 import database from '../../firebase/firebase'
 import Items from '../Items/Items'
+import { auth } from '../../firebase/firebase'
+import { Redirect } from 'react-router-dom'
 
 class Transactions extends React.Component {
 	_isMounted = false
@@ -11,7 +13,8 @@ class Transactions extends React.Component {
 		super(props)
 
 		this.state = {
-			transactions: []
+			transactions: [],
+			isLoggedIn: false
 		}
 
 		this.updateList = this.updateList.bind(this)
@@ -20,6 +23,14 @@ class Transactions extends React.Component {
 	componentDidMount() {
 		this._isMounted = true
 		this.updateList()
+		
+		auth.onAuthStateChanged((user) => {
+			if (user) {
+				this.setState({ isLoggedIn: true })
+			} else {
+				this.setState({ isLoggedIn: false })
+			}
+		})
 	}
 
 	componentWillUnmount() {
@@ -47,6 +58,12 @@ class Transactions extends React.Component {
 	
 	render() {
 		if(this._isMounted) {
+			if(!this.state.isLoggedIn && window.location.href.includes('/transactions')) {
+				{ console.log('g u y', window.location.href) }
+				return (
+					<Redirect from='/transactions' to='/' />
+				)
+			}
 			const transactions = this.state.transactions.map((transaction, i) => {
 				const transactionEls = transaction[Object.keys(transaction)[0]]
 	
