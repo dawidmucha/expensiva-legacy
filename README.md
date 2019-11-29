@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-don't read this file or bad luck will happen
-=======
+> Anyone who has never made a mistake has never tried anything new.
+– Albert Einstein
 
->>>>>>> 8a40836852a2e2a464bccc029038d9e22efb7a9b
+i googled "quote about failing and learning" for this
